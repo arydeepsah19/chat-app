@@ -5,7 +5,7 @@ agent any
 environment {
 
     DJANGO_HOST = "172.31.37.243"
-    DJANGO_USER = "ubuntu"
+    DJANGO_USER = "arya"
     REMOTE_PATH = "/opt/django-app/chatapp-ubuntu-22.04"
 
 }
