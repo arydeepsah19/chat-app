@@ -29,6 +29,7 @@ stages {
             sshagent(credentials: ['controler_private_key']) {
                 sh '''
                 rsync -av --delete \
+                -e "ssh -o StrictHostKeyChecking=no"
                 --exclude '.git' \
                 --exclude 'venv' \
                 --exclude 'db.sqlite3' \
