@@ -1,0 +1,101 @@
+pipeline {
+
+```
+agent any
+
+environment {
+
+    DJANGO_HOST = "172.31.37.243"
+    DJANGO_USER = "ubuntu"
+    REMOTE_PATH = "/opt/django-app/chatapp-ubuntu-22.04"
+
+}
+
+stages {
+
+    stage('Clone Repository') {
+
+        steps {
+
+            git branch: 'main',
+                url: 'https://github.com/arydeepsah19/chat-app.git'
+
+        }
+    }
+
+    stage('Copy Code To Django Server') {
+
+        steps {
+
+            sshagent(credentials: ['controller-key']) {
+
+                sh '''
+                rsync -av --delete \
+                --exclude '.git' \
+                --exclude 'venv' \
+                ./chatapp-ubuntu-22.04/ \
+                ${DJANGO_USER}@${DJANGO_HOST}:${REMOTE_PATH}/
+                '''
+
+            }
+        }
+    }
+
+    stage('Run Migration') {
+
+        steps {
+
+            sshagent(credentials: ['controller-key']) {
+
+                sh '''
+                ssh -o StrictHostKeyChecking=no \
+                ${DJANGO_USER}@${DJANGO_HOST} "
+                    cd /opt/django-app/chatapp-ubuntu-22.04/fundoo &&
+
+                    venv/bin/python manage.py migrate --noinput
+                "
+                '''
+
+            }
+        }
+    }
+
+    stage('Collect Static') {
+
+        steps {
+
+            sshagent(credentials: ['controller-key']) {
+
+                sh '''
+                ssh -o StrictHostKeyChecking=no \
+                ${DJANGO_USER}@${DJANGO_HOST} "
+                    cd /opt/django-app/chatapp-ubuntu-22.04/fundoo &&
+
+                    venv/bin/python manage.py collectstatic --noinput
+                "
+                '''
+
+            }
+        }
+    }
+
+    stage('Restart Django Service') {
+
+        steps {
+
+            sshagent(credentials: ['controller-key']) {
+
+                sh '''
+                ssh -o StrictHostKeyChecking=no \
+                ${DJANGO_USER}@${DJANGO_HOST} "
+                    sudo systemctl restart django
+                "
+                '''
+
+            }
+        }
+    }
+}
+```
+
+}
