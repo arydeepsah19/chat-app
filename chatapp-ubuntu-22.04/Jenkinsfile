@@ -1,6 +1,6 @@
 pipeline {
 
-agent any
+agent { label 'sonar-load' }
 
 environment {
 
@@ -47,7 +47,7 @@ stages {
     stage('Copy Code To Django Server') {
         steps {
 
-            sshagent(credentials: ['controler_private_key']) {
+            sshagent(credentials: ['controler_key']) {
 
                 sh '''
                 rsync -av --delete \
@@ -70,7 +70,7 @@ stages {
 
         steps {
 
-            sshagent(credentials: ['controler_private_key']) {
+            sshagent(credentials: ['controler_key']) {
 
                 sh '''
                 ssh -o StrictHostKeyChecking=no \
@@ -89,7 +89,7 @@ stages {
 
         steps {
 
-            sshagent(credentials: ['controler_private_key']) {
+            sshagent(credentials: ['controler_key']) {
 
                 sh '''
                 ssh -o StrictHostKeyChecking=no \
@@ -108,7 +108,7 @@ stages {
 
         steps {
 
-            sshagent(credentials: ['controler_private_key']) {
+            sshagent(credentials: ['controler_key']) {
 
                 sh '''
                 ssh -o StrictHostKeyChecking=no \
